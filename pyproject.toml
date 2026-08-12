@@ -1,0 +1,19 @@
+[project]
+name = "rue"
+version = "0.1.0"
+description = "Enterprise AI Engineering Project built with Python"
+readme = "README.md"
+authors = [
+    { name = "Huang Feng", email = "huangfeng2@focusmedia.cn" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic-settings>=2.15.0",
+]
+
+[project.scripts]
+rue = "rue.main:main"
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
