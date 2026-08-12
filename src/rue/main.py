@@ -1,7 +1,6 @@
-import uuid
 from rue.llm.ollama import OllamaLLM
 from rue.prompt import DEFAULT_PROMPT
-from rue.models.message import ChatRequest,Message
+from rue.models.message import ChatRequest,Message,Role
 from rue.models.response import ChatResponse
 
 
@@ -13,20 +12,18 @@ def main():
         question="介绍一下自己")
 
     message = Message(
-        role="user",
-        content=content,
-        message_id = uuid.uuid4()
+        role=Role.USER,
+        content=content
     )
 
     chat_request = ChatRequest(
-        message=message,
-        request_id=uuid.uuid4()
+        message=message
     )
 
     chat_response = llm.chat(
         chat_request=chat_request)
 
-    print(chat_response.to_dict())
+    print(chat_response.model_dump(mode="json"))
 
 if __name__ == "__main__":
     main()

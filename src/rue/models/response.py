@@ -1,12 +1,9 @@
-class ChatResponse:
-    def __init__(self, content: str, model: str):
-        self.content = content
-        self.model = model
+from pydantic import BaseModel
 
-    def to_dict(self):
-        return {
-            "content": self.content,
-            "model": self.model
-        }
+class ChatResponse(BaseModel):
+    
+    content: str
+    model: str
+
 
 

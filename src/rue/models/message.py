@@ -1,24 +1,21 @@
-class Message:
-    def __init__(self, role: str, content: str, message_id: int):
-        
-        if role not in ["user", "assistant", "system"]:
-            raise ValueError("Invalid role")
+from pydantic import BaseModel, Field
+from enum import Enum
+import uuid
 
-        self.role = role
-        self.content = content
-        self.message_id = message_id
-    
-    def to_dict(self):
-        return {
-            "role": self.role,
-            "content": self.content,
-            "message_id": self.message_id
-        }
+class Role(str, Enum):
+    USER = "user"
+    ASSISTANT = "assistant"
+    SYSTEM = "system"
 
-class ChatRequest:
+class Message(BaseModel):
     
-    def __init__(self, message: Message, request_id: int):
-        self.message = message
-        self.request_id = request_id
+    role: Role
+    content: str
+    message_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    
+
+class ChatRequest(BaseModel):
+    message: Message
+    request_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     
 
