@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from enum import Enum
 import uuid
+from rue.config import Settings
 
 class Role(str, Enum):
     USER = "user"
