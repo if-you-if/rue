@@ -19,7 +19,7 @@ class OllamaLLM(BaseLLM):
         payload = {
             "model": settings.model_name,
             "stream": False,
-            "messages": [msg.model_dump(mode="json") for msg in conversation.messages]
+            "messages": [msg.model_dump(mode="json") for msg in conversation.get_messages()]
         }
 
         with httpx.Client() as client:
