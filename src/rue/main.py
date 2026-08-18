@@ -1,9 +1,11 @@
+from multiprocessing import context
 from rue.llm.ollama import OllamaLLM
 from rue.prompt import DEFAULT_SYSTEM_PROMPT
 from rue.models.message import ChatRequest,Message,Role
 from rue.models.response import ChatResponse
 from rue.memory.conversation import Conversation
 from rue.context.manager import SlidingWindowContextManager
+from rue.prompt.builder import PromptBuilder  
 
 
 def main():
@@ -39,9 +41,13 @@ def main():
                 content=user_input
             )
 
-            conversation.add_user_message(message)
-            messages = context_manager.build(conversation=conversation)
+            context = context_manager.build(conversation=conversation)
             
+            prompt_builder = PromptBuilder()
+            messages = prompt_builder.build(
+                context,
+                message
+            )
 
             print("Assistant > ", end="", flush=True)
 

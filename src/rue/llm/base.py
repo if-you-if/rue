@@ -8,3 +8,7 @@ class BaseLLM(ABC):
     @abstractmethod
     def chat(self, messages: list[Message]) -> ChatResponse:
         pass
+
+    @abstractmethod
+    def chat_stream(self, messages: list[Message])->Iterator[str]:
+        pass

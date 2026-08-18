@@ -28,3 +28,7 @@ class OllamaLLM(BaseLLM):
             model=data.get("model", settings.model_name)
             )
             return ressponse
+    
+    def chat_stream(self, messages: list[Message]) -> Iterator[str]:
+        return super().chat_stream(messages)
+        
