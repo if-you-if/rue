@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from rue.models.message import ChatRequest
 from rue.models.response import ChatResponse
+from rue.models.message import Message
 
 
 class BaseLLM(ABC):
     
     @abstractmethod
-    def chat(self, chat_request: ChatRequest) -> ChatResponse:
+    def chat(self, messages: list[Message]) -> ChatResponse:
         pass

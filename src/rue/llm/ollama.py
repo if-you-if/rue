@@ -8,18 +8,14 @@ from rue.models.message import Message, Role
 
 class OllamaLLM(BaseLLM):
 
-    def chat(self, chat_request: ChatRequest, conversation: Conversation = None) -> ChatResponse:
+    def chat(self, messages: list[Message]) -> ChatResponse:
 
-        if conversation is None:
-            conversation = Conversation()
-        conversation.add_user_message(chat_request.message)
-       
         endpoint = f"{settings.base_url.rstrip('/')}/api/chat"
         
         payload = {
             "model": settings.model_name,
             "stream": False,
-            "messages": [msg.model_dump(mode="json") for msg in conversation.get_messages()]
+            "messages": [{"role": msg.role.value, "content": msg.content} for msg in messages]
         }
 
         with httpx.Client() as client:
@@ -31,9 +27,4 @@ class OllamaLLM(BaseLLM):
             content=data['message']['content'],
             model=data.get("model", settings.model_name)
             )
-            assistant_message = Message(
-                role=Role.ASSISTANT,
-                content=ressponse.content
-            )
-            conversation.add_assistant_message(assistant_message)
             return ressponse

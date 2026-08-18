@@ -1,16 +1,23 @@
 from rue.llm.ollama import OllamaLLM
-from rue.prompt import DEFAULT_PROMPT
+from rue.prompt import DEFAULT_SYSTEM_PROMPT
 from rue.models.message import ChatRequest,Message,Role
 from rue.models.response import ChatResponse
 from rue.memory.conversation import Conversation
-
+from rue.context.manager import SlidingWindowContextManager
 
 
 def main():
    
     llm = OllamaLLM()
 
-    conversation = Conversation()
+    context_manager = SlidingWindowContextManager(
+        max_turns = 5
+    )
+    
+    conversation = Conversation(system_message=Message(
+        role=Role.SYSTEM,
+        content=DEFAULT_SYSTEM_PROMPT.format(domain="python"))
+    )
 
     print("=" * 50)
     print("Ollama 交互式终端已启动！输入 'exit' 或 'quit' 结束对话。")
@@ -26,20 +33,24 @@ def main():
             if user_input.lower() in ["exit", "quit"]:
                 print("再见！")
                 break
-            content = DEFAULT_PROMPT.format(question=user_input)
+
             message = Message(
                 role=Role.USER,
-                content=content
+                content=user_input
             )
 
-            chat_request = ChatRequest(
-                message=message
-            )
+            conversation.add_user_message(message)
+            messages = context_manager.build(conversation=conversation)
+            
 
             print("Assistant > ", end="", flush=True)
 
             chat_response = llm.chat(
-                chat_request=chat_request, conversation=conversation)
+                messages=messages)
+            
+            assistant_message = Message(role=Role.ASSISTANT, content=chat_response.content)
+            
+            conversation.add_assistant_message(assistant_message)
 
             print(chat_response.content)
             
