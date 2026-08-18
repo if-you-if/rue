@@ -1,15 +1,26 @@
-from pydantic import BaseModel
 from rue.memory.conversation import Conversation
 from rue.context.manager import SlidingWindowContextManager
-from rue.llm.ollama import OllamaLLM
+from rue.llm.base import BaseLLM
 from rue.prompt.builder import PromptBuilder
+from rue.models.message import Message, Role
+from rue.models.response import ChatResponse
+from typing import Iterator
 
-class ChatPipeline(BaseModel):
+
+class ChatPipeline:
+
+    def __init__(
+        self, 
+        llm: BaseLLM,
+        context_manager: SlidingWindowContextManager, 
+        prompt_builder: PromptBuilder, 
+        conversation: Conversation
+    ):
+        self.llm = llm
+        self.context_manager = context_manager
+        self.prompt_builder = prompt_builder
+        self.conversation = conversation
     
-    llm: OllamaLLM
-    context_manager: SlidingWindowContextManager
-    prompt_builder: PromptBuilder
-    conversation: Conversation
 
     def run(self, user_message: Message) -> ChatResponse:
 
@@ -17,22 +28,40 @@ class ChatPipeline(BaseModel):
         self.conversation.add_user_message(user_message)
 
         # 2.构建上下文
-        context =self.context_manager.build(self.conversation)
+        context =self.context_manager.build(conversation=self.conversation)
 
         # 3.组装prompt
-        messages = self.prompt_builder.build(context, self.conversation)
+        messages = self.prompt_builder.build(context)
 
         # 4.调用LLM
-        response = self.llm.chat(messages)
+        response = self.llm.chat(messages=messages)
 
         # 5.存入助手回复
-        self.conversation.add_assistant_message(response)
+        self.conversation.add_assistant_message(Message(role=Role.ASSISTANT, content=response.content))
 
         return response
 
         
 
+    def run_stream(
+        self,
+        user_message: Message
+    ) -> Iterator[str]:
+        self.conversation.add_user_message(user_message)
+        context = self.context_manager.build(conversation=self.conversation)
+        messages = self.prompt_builder.build(prompt_context=context)
         
+        # 流式调用llm,逐token返回
+        full_response = []
+        for token in self.llm.chat_stream(messages=messages):
+            full_response.append(token)
+            yield token
+        assistant_message = Message(
+            role=Role.ASSISTANT,
+            content="".join(full_response)
+            )
+
+        self.conversation.add_assistant_message(assistant_message=assistant_message)
 
 
 

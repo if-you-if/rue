@@ -1,4 +1,3 @@
-from multiprocessing import context
 from rue.llm.ollama import OllamaLLM
 from rue.prompt import DEFAULT_SYSTEM_PROMPT
 from rue.models.message import ChatRequest,Message,Role
@@ -6,6 +5,7 @@ from rue.models.response import ChatResponse
 from rue.memory.conversation import Conversation
 from rue.context.manager import SlidingWindowContextManager
 from rue.prompt.builder import PromptBuilder  
+from rue.pipeline.chat import ChatPipeline
 
 
 def main():
@@ -13,12 +13,22 @@ def main():
     llm = OllamaLLM()
 
     context_manager = SlidingWindowContextManager(
-        max_turns = 5
+        max_tokens = 5
     )
+    prompt_builder = PromptBuilder()
     
-    conversation = Conversation(system_message=Message(
-        role=Role.SYSTEM,
-        content=DEFAULT_SYSTEM_PROMPT.format(domain="python"))
+    conversation = Conversation(
+        system_message=Message(
+            role=Role.SYSTEM,
+            content=DEFAULT_SYSTEM_PROMPT.format(domain="python"))
+    )
+
+    #组装 pipeline
+    pipeline = ChatPipeline(
+        llm=llm,
+        context_manager=context_manager,
+        prompt_builder=prompt_builder,
+        conversation=conversation
     )
 
     print("=" * 50)
@@ -41,24 +51,11 @@ def main():
                 content=user_input
             )
 
-            context = context_manager.build(conversation=conversation)
-            
-            prompt_builder = PromptBuilder()
-            messages = prompt_builder.build(
-                context,
-                message
-            )
-
             print("Assistant > ", end="", flush=True)
 
-            chat_response = llm.chat(
-                messages=messages)
-            
-            assistant_message = Message(role=Role.ASSISTANT, content=chat_response.content)
-            
-            conversation.add_assistant_message(assistant_message)
 
-            print(chat_response.content)
+            for token in pipeline.run_stream(message):
+                print(token, end="", flush=True)
             
         except KeyboardInterrupt:
             print("\n检测到中断信号，程序已退出。")

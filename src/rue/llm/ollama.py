@@ -5,6 +5,8 @@ import httpx
 from rue.config import settings
 from rue.memory.conversation import Conversation
 from rue.models.message import Message, Role
+from typing import Iterator
+import json
 
 class OllamaLLM(BaseLLM):
 
@@ -30,5 +32,19 @@ class OllamaLLM(BaseLLM):
             return ressponse
     
     def chat_stream(self, messages: list[Message]) -> Iterator[str]:
-        return super().chat_stream(messages)
-        
+        endpoint = f"{settings.base_url.rstrip('/')}/api/chat"
+        payload = {
+            "model": settings.model_name,
+            "stream": True,
+            "messages": [{"role": msg.role.value, "content": msg.content} for msg in messages]
+        }
+
+        with httpx.stream("POST", endpoint, json=payload, timeout=60.0) as res:
+            res.raise_for_status()
+            for line in res.iter_lines():
+                if not line:
+                    continue
+                chunk = json.loads(line)
+                if chunk.get("done"):
+                    break
+                yield chunk["message"]["content"]

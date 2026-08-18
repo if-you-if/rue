@@ -18,19 +18,23 @@ class SlidingWindowContextManager(BaseModel):
             
         messages = conversation.get_messages()
 
-        system_messsages = [msg for msg in messages if msg.role == Role.SYSTEM]
+        system_messages = [msg for msg in messages if msg.role == Role.SYSTEM]
         conversation_messages = [msg for msg in messages if msg.role != Role.SYSTEM]
 
         history = []
         token_count = 0
 
         for msg in reversed(conversation_messages):
-            cost = self._count_tokens(msg.context)
+            cost = self._count_tokens(msg.content)
             if token_count + cost > self.max_tokens:
                 break
             history.insert(0, msg)
             token_count += cost
-        return PromptContext(messages = system_messsages + history)
+        return PromptContext(messages = system_messages + history)
+    
+    def _count_tokens(self, text: str) -> int:
+
+        return len(text) // 3
 
     
 
