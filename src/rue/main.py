@@ -13,7 +13,7 @@ def main():
     llm = OllamaLLM()
 
     context_manager = SlidingWindowContextManager(
-        max_tokens = 5
+        max_tokens = 2048
     )
     prompt_builder = PromptBuilder()
     
