@@ -1,27 +1,17 @@
-from rue.models.message import Message, Role
 from rue.prompt.context import PromptContext
+from rue.prompt.strategy.base import PromptStrategy
+from rue.models.message import Message
+from rue.prompt.strategy.chat import ChatStrategy
+
 
 class PromptBuilder:
 
-    def build(
-        self,
-        prompt_context: PromptContext,
-    ) -> list[Message]:
-        
-        messages = list(prompt_context.messages)
+    def __init__(self, strategy: PromptStrategy | None = None):
+        self.strategy = strategy or ChatStrategy()
 
-        if prompt_context.retrieved_context:
+    def build(self, prompt_context: PromptContext) -> list[Message]:
+        return self.strategy.build(prompt_context)
 
-            messages.insert(
-                0,
-                Message(
-                    role=Role.SYSTEM,
-                    content="参考资料:\n"
-                        + prompt_context.retrieved_context,
-                )
-            )
-
-        return messages
         
 
 
