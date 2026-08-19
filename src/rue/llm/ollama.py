@@ -1,3 +1,4 @@
+from rue.rag.embedding.base import BaseEmbedding
 from .base import BaseLLM
 from rue.models.response import ChatResponse
 import httpx
@@ -46,3 +47,6 @@ class OllamaLLM(BaseLLM):
                 if chunk.get("done"):
                     break
                 yield chunk["message"]["content"]
+
+
+

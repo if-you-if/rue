@@ -21,5 +21,5 @@ class RAGStrategy(PromptStrategy):
         for i, msg in enumerate(messages):
             if msg.role == Role.SYSTEM:
                 insert_idx = i + 1
-        messages.insert(insert_idx, rag_message)
+            messages.insert(insert_idx, rag_message)
         return messages
