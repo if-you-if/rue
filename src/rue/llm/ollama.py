@@ -1,9 +1,7 @@
 from .base import BaseLLM
-from rue.models.message import ChatRequest
 from rue.models.response import ChatResponse
 import httpx
 from rue.config import settings
-from rue.memory.conversation import Conversation
 from rue.models.message import Message, Role
 from typing import Iterator
 import json

@@ -1,6 +1,5 @@
-from rue.models.message import Message
+from rue.models.message import Message, Role
 from rue.prompt.context import PromptContext
-from rue.models.message import Role
 
 class PromptBuilder:
 
