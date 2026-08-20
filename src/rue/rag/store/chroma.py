@@ -1,5 +1,4 @@
 import chromadb
-from chromadb.config import Settings
 from rue.rag.document import Document
 from rue.rag.store.base import BaseVectorStore, SearchResult
 from rue.rag.chunk import Chunk
@@ -25,7 +24,7 @@ class ChromaVectorStore(BaseVectorStore):
 
     def search(self, query_embedding: list[float], top_k: int = 3) -> list[SearchResult]:
         results = self.collection.query(
-            query_embedding=[query_embedding],
+            query_embeddings=[query_embedding],
             n_results=top_k
         )
         search_results = []

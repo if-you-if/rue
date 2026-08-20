@@ -6,4 +6,4 @@ class BaseRetriever(ABC):
     @abstractmethod
     def retrieve(self, query: str, top_k: int = 3) -> list[SearchResult]:
         pass
-    l
+    

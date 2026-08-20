@@ -10,12 +10,12 @@ class OllamaEmbedding(BaseEmbedding):
     
     def embed(self, text: str) -> list[float]:
         
-        plaload = {
+        payload = {
             "model": self.model,
             "prompt": text,
         }
 
-        with httpx.Client as client:
-            res = client.post(self.endpoint, json=plaload, timeout=60.0)
+        with httpx.Client() as client:
+            res = client.post(self.endpoint, json=payload, timeout=60.0)
             res.raise_for_status()
             return res.json()["embedding"]

@@ -5,6 +5,7 @@ from rue.memory.conversation import Conversation
 from rue.context.manager import SlidingWindowContextManager
 from rue.prompt.builder import PromptBuilder  
 from rue.pipeline.chat import ChatPipeline
+from rue.prompt.strategy import RAGStrategy
 
 
 def main():
@@ -14,7 +15,7 @@ def main():
     context_manager = SlidingWindowContextManager(
         max_tokens = 2048
     )
-    prompt_builder = PromptBuilder()
+    prompt_builder = PromptBuilder(strategy=RAGStrategy)
     
     conversation = Conversation(
         system_message=Message(
@@ -27,7 +28,8 @@ def main():
         llm=llm,
         context_manager=context_manager,
         prompt_builder=prompt_builder,
-        conversation=conversation
+        conversation=conversation,
+        rag_pipeline=rag
     )
 
     print("=" * 50)

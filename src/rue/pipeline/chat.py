@@ -6,6 +6,8 @@ from rue.models.message import Message, Role
 from rue.models.response import ChatResponse
 from typing import Iterator
 
+from rue.rag.pipeline import RAGPipeline
+
 
 class ChatPipeline:
 
@@ -14,12 +16,14 @@ class ChatPipeline:
         llm: BaseLLM,
         context_manager: SlidingWindowContextManager, 
         prompt_builder: PromptBuilder, 
-        conversation: Conversation
+        conversation: Conversation,
+        rag_pipeline: RAGPipeline | None = None
     ):
         self.llm = llm
         self.context_manager = context_manager
         self.prompt_builder = prompt_builder
         self.conversation = conversation
+        self.rag_pipeline = rag_pipeline
     
 
     def run(self, user_message: Message) -> ChatResponse:
@@ -49,6 +53,13 @@ class ChatPipeline:
     ) -> Iterator[str]:
         self.conversation.add_user_message(user_message)
         context = self.context_manager.build(conversation=self.conversation)
+        
+        #RAG检索
+        if self.rag_pipeline:
+            context.retrieved_context = self.rag_pipeline.retrieve_as_context(
+                user_message.content
+            )
+
         messages = self.prompt_builder.build(prompt_context=context)
         
         # 流式调用llm,逐token返回

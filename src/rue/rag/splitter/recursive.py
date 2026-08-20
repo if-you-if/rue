@@ -1,4 +1,3 @@
-import chunk
 from rue.rag.splitter.base import TextSplitter
 from rue.rag.document import Document
 from rue.rag.chunk import Chunk

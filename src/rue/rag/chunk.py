@@ -1,5 +1,5 @@
 from rue.rag.document import Document
-from dataclasses import dataclasss
+from dataclasses import dataclass
 
 
 @dataclass
