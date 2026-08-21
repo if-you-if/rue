@@ -18,7 +18,7 @@ class RAGPipeline:
         embedding: BaseEmbedding,
         store: BaseVectorStore,
         retriever: BaseRetriever,
-        similarity_threshold: float = 0.5
+        similarity_threshold: float = 0.6
     ):
         self.loader = loader
         self.splitter = splitter
