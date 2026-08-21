@@ -1,4 +1,7 @@
-from venv import logger
+import logging
+
+logger = logging.getLogger(__name__)
+
 from rue.memory.conversation import Conversation
 from rue.context.manager import SlidingWindowContextManager
 from rue.llm.base import BaseLLM
@@ -44,10 +47,10 @@ class ChatPipeline:
         # 2.构建上下文
         context =self.context_manager.build(conversation=self.conversation)
 
-        context.retrieved_context = _retrieve_context(user_message.content)
+        context.retrieved_context = self._retrieve_context(user_message.content)
 
         # 3.组装prompt
-        messages = self.prompt_builder.build(context)
+        messages = self.prompt_builder.build(prompt_context=context)
 
         # 4.调用LLM
         response = self.llm.chat(messages=messages)
@@ -67,7 +70,7 @@ class ChatPipeline:
         context = self.context_manager.build(conversation=self.conversation)
         
         #RAG检索
-        context.retrieved_context = _retrieve_context(user_message.content)
+        context.retrieved_context = self._retrieve_context(user_message.content)
 
         messages = self.prompt_builder.build(prompt_context=context)
         

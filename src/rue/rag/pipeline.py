@@ -1,4 +1,7 @@
-from venv import logger
+import logging
+
+logger = logging.getLogger(__name__)
+
 from rue.rag.loader.base import BaseLoader
 from rue.rag.splitter.base import TextSplitter
 from rue.rag.embedding.base import BaseEmbedding
@@ -41,7 +44,7 @@ class RAGPipeline:
             logger.debug(f"无相关文档（阈值 {self.similarity_threshold}), 跳过上下文注入")
             return ""
         parts = []
-        for i, r in enumerate(results):
+        for i, r in enumerate(relevant):
             source = r.chunk.metadata.get("source", "未知来源")
             parts.append(f"[{i+1}] (来源: {source})\n{r.chunk.content}")
         return "\n\n".join(parts)

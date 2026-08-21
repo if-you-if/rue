@@ -1,4 +1,3 @@
-from argparse import BooleanOptionalAction
 import chromadb
 from rue.rag.document import Document
 from rue.rag.store.base import BaseVectorStore, SearchResult
@@ -38,7 +37,7 @@ class ChromaVectorStore(BaseVectorStore):
             search_results.append(SearchResult(chunk=chunk, score=score))
         return search_results
     
-    def chear(self) -> None:
+    def clear(self) -> None:
         """清空 collection 中的所有数据"""
         if self.collection.count() > 0:
             self.collection.delete(ids=self.collection.get()["ids"])
