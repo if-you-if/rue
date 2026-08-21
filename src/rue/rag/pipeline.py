@@ -1,3 +1,4 @@
+from venv import logger
 from rue.rag.loader.base import BaseLoader
 from rue.rag.splitter.base import TextSplitter
 from rue.rag.embedding.base import BaseEmbedding
@@ -14,12 +15,14 @@ class RAGPipeline:
         embedding: BaseEmbedding,
         store: BaseVectorStore,
         retriever: BaseRetriever,
+        similarity_threshold: float = 0.5
     ):
         self.loader = loader
         self.splitter = splitter
         self.embedding = embedding
         self.store = store
         self.retriever = retriever
+        self.similarity_threshold = similarity_threshold
     
     def index(self, source: str) -> int:
         documents = self.loader.load(source)
@@ -33,6 +36,10 @@ class RAGPipeline:
 
     def retrieve_as_context(self, query: str, top_k: int = 3) -> str:
         results = self.retrieve(query, top_k=top_k)
+        relevant = [r for r in results if r.score > self.similarity_threshold]
+        if not relevant:
+            logger.debug(f"无相关文档（阈值 {self.similarity_threshold}), 跳过上下文注入")
+            return ""
         parts = []
         for i, r in enumerate(results):
             source = r.chunk.metadata.get("source", "未知来源")
@@ -43,6 +50,8 @@ class RAGPipeline:
         extensions = extensions or [".md", ".txt"]
         dir_path = Path(directory)
         total = 0
+
+        self.store.clear()
 
         for file_path in sorted(dir_path.iterdir()):
             if file_path.is_file() and file_path.suffix in extensions:

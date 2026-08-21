@@ -33,8 +33,9 @@ class SlidingWindowContextManager(BaseModel):
         return PromptContext(messages = system_messages + history)
     
     def _count_tokens(self, text: str) -> int:
-
-        return len(text) // 3
+        chinses_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
+        others_chars = len(text) - chinses_chars
+        return int(chinses_chars * 1.5 + others_chars * 0.75)
 
     
 

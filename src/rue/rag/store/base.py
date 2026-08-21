@@ -16,3 +16,7 @@ class BaseVectorStore(ABC):
     @abstractmethod
     def search(self, query_embedding: list[float], top_k: int = 3) -> list[SearchResult]:
         pass
+
+    @abstractmethod
+    def clear(self) -> None:
+        pass

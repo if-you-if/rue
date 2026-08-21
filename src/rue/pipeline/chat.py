@@ -1,3 +1,4 @@
+from venv import logger
 from rue.memory.conversation import Conversation
 from rue.context.manager import SlidingWindowContextManager
 from rue.llm.base import BaseLLM
@@ -25,6 +26,15 @@ class ChatPipeline:
         self.conversation = conversation
         self.rag_pipeline = rag_pipeline
     
+    def _retrieve_context(self, query: str) -> str:
+        """RAG 检索，失败时降级为空上下文"""
+        if not self.rag_pipeline:
+            return ""
+        try:
+            return self.rag_pipeline.retrieve_as_context(query)
+        except Exception as e:
+            logger.warning(f"RAG 检索失败, 降级为纯对话模式: {e}")
+            return ""    
 
     def run(self, user_message: Message) -> ChatResponse:
 
@@ -34,10 +44,7 @@ class ChatPipeline:
         # 2.构建上下文
         context =self.context_manager.build(conversation=self.conversation)
 
-        if self.rag_pipeline:
-            context.retrieved_context = self.rag_pipeline.retrieve_as_context(
-                user_message.content
-            )
+        context.retrieved_context = _retrieve_context(user_message.content)
 
         # 3.组装prompt
         messages = self.prompt_builder.build(context)
@@ -60,10 +67,7 @@ class ChatPipeline:
         context = self.context_manager.build(conversation=self.conversation)
         
         #RAG检索
-        if self.rag_pipeline:
-            context.retrieved_context = self.rag_pipeline.retrieve_as_context(
-                user_message.content
-            )
+        context.retrieved_context = _retrieve_context(user_message.content)
 
         messages = self.prompt_builder.build(prompt_context=context)
         
@@ -78,6 +82,8 @@ class ChatPipeline:
             )
 
         self.conversation.add_assistant_message(assistant_message=assistant_message)
+
+    
 
 
 
