@@ -6,6 +6,13 @@ from rue.context.manager import SlidingWindowContextManager
 from rue.prompt.builder import PromptBuilder  
 from rue.pipeline.chat import ChatPipeline
 from rue.prompt.strategy import RAGStrategy
+from rue.rag.embedding.ollama import OllamaEmbedding
+from rue.rag.loader.text import TextLoader
+from rue.rag.pipeline import RAGPipeline
+from rue.rag.splitter.recursive import RecursiveCharacterSplitter
+from rue.rag.retriever.vector import VectorRetriever
+from rue.rag.store.chroma import ChromaVectorStore
+
 
 
 def main():
@@ -15,7 +22,7 @@ def main():
     context_manager = SlidingWindowContextManager(
         max_tokens = 2048
     )
-    prompt_builder = PromptBuilder(strategy=RAGStrategy)
+    prompt_builder = PromptBuilder(strategy=RAGStrategy())
     
     conversation = Conversation(
         system_message=Message(
@@ -23,13 +30,29 @@ def main():
             content=DEFAULT_SYSTEM_PROMPT.format(domain="python"))
     )
 
+    loader = TextLoader()
+    splitter = RecursiveCharacterSplitter(chunk_size=500, chunk_overlap=50)
+    embedding = OllamaEmbedding()
+    store = ChromaVectorStore()
+    retriever = VectorRetriever(embedding=embedding, store=store)
+    
+
+    rag_pipeline = RAGPipeline(
+        loader=loader,
+        splitter=splitter,
+        embedding=embedding,
+        store = store,
+        retriever=retriever
+    )
+    rag_pipeline.index_directory("data/raw")
+
     #组装 pipeline
     pipeline = ChatPipeline(
         llm=llm,
         context_manager=context_manager,
         prompt_builder=prompt_builder,
         conversation=conversation,
-        rag_pipeline=rag
+        rag_pipeline=rag_pipeline
     )
 
     print("=" * 50)

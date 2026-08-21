@@ -34,6 +34,11 @@ class ChatPipeline:
         # 2.构建上下文
         context =self.context_manager.build(conversation=self.conversation)
 
+        if self.rag_pipeline:
+            context.retrieved_context = self.rag_pipeline.retrieve_as_context(
+                user_message.content
+            )
+
         # 3.组装prompt
         messages = self.prompt_builder.build(context)
 

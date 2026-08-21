@@ -5,7 +5,7 @@ import httpx
 class OllamaEmbedding(BaseEmbedding):
 
     def __init__(self, model: str | None = None):
-        self.model = model or settings.model_name
+        self.model = model or settings.embedding_model
         self.endpoint = f"{settings.base_url.rstrip('/')}/api/embeddings"
     
     def embed(self, text: str) -> list[float]:
