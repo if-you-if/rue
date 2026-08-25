@@ -1,5 +1,7 @@
 import logging
 
+from rue.prompt.context import PromptContext
+
 logger = logging.getLogger(__name__)
 
 from rue.memory.conversation import Conversation
@@ -44,13 +46,13 @@ class ChatPipeline:
         # 1.存入对话历史
         self.conversation.add_user_message(user_message)
 
-        # 2.构建上下文
-        context =self.context_manager.build(conversation=self.conversation)
-
-        context.retrieved_context = self._retrieve_context(user_message.content)
-
+        # 2.构建prompt上下文
+        prompt_context = PromptContext(
+            messages=self.context_manager.build(conversation=self.conversation),
+            retrieved_context=self._retrieve_context(user_message.content)
+        )
         # 3.组装prompt
-        messages = self.prompt_builder.build(prompt_context=context)
+        messages = self.prompt_builder.build(prompt_context=prompt_context)
 
         # 4.调用LLM
         response = self.llm.chat(messages=messages)
@@ -67,12 +69,12 @@ class ChatPipeline:
         user_message: Message
     ) -> Iterator[str]:
         self.conversation.add_user_message(user_message)
-        context = self.context_manager.build(conversation=self.conversation)
-        
-        #RAG检索
-        context.retrieved_context = self._retrieve_context(user_message.content)
-
-        messages = self.prompt_builder.build(prompt_context=context)
+        # 2.构建prompt上下文
+        prompt_context = PromptContext(
+            messages=self.context_manager.build(conversation=self.conversation),
+            retrieved_context=self._retrieve_context(user_message.content)
+        )
+        messages = self.prompt_builder.build(prompt_context=prompt_context)
         
         # 流式调用llm,逐token返回
         full_response = []

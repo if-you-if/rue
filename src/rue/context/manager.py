@@ -14,7 +14,7 @@ class SlidingWindowContextManager(BaseModel):
 
     def build(
         self, conversation: Conversation
-    ) -> PromptContext:
+    ) -> list[Message]:
             
         messages = conversation.get_messages()
 
@@ -30,7 +30,7 @@ class SlidingWindowContextManager(BaseModel):
                 break
             history.insert(0, msg)
             token_count += cost
-        return PromptContext(messages = system_messages + history)
+        return system_messages + history
     
     def _count_tokens(self, text: str) -> int:
         chinses_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
