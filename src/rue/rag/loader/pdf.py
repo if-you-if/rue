@@ -25,21 +25,22 @@ class PDFLoader(BaseLoader):
                 
                 for page_num in range(len(doc)):
                     page = doc[page_num]
-                    text = page.get_text()
+                    text = page.get_text().strip()
 
                     metadata = {
                         "source": source,
                         "page_num": page_num + 1,
                         "total_pages": len(doc),
+                        "need_ocr" : len(text) == 0
                     }
 
                     docs.append(Document(content=text, metadata=metadata))
 
             return docs
 
+        except fitz.fitz.FileDataError as e:
+            raise PDFLoaderError(f"文件格式不是有效的 PDF: {source}") from e
         except fitz.fitz.FitzError as e:
             raise ProcessingError(f"PDF解析失败: {source}") from e
-        except Exception as e:
-            raise PDFLoaderError(f"加载PDF失败: {source}") from e
 
 
