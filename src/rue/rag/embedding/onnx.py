@@ -1,30 +1,33 @@
 from tokenizers import Tokenizer
 from typing import Optional, Callable
-from rue.config import settings
+from rue.config import PROJECT_ROOT, settings
 from rue.rag.embedding.base import BaseEmbedding
 from pathlib import Path
 import onnxruntime as ort
 import numpy as np
 
+
 class OnnxEmbedding(BaseEmbedding):
     
     def __init__(
         self,
-        model_dir: Optional[str] = Path(model_dir) if model_dir else Path(settings.onnx_model_dir),
+        model_dir: Optional[str] = None,
         max_length: int = 512,
         normalize: bool = True,
         pooling: str = "cls"
     ):
-        self.model_dir = Path(model_dir) if model_dir else _default_model_dir()
+        if model_dir and model_dir.strip():
+            raw = model_dir
+        elif settings.onnx_model_dir:
+            raw = settings.onnx_model_dir
+        
+        path = Path(raw)
+        self.model_dir = path if path.is_absolute() else PROJECT_ROOT / path
+
         self.max_length = max_length
         self.normalize = normalize
         self._pooling = pooling
-
-        if model_dir is None or not model_dir.strip():
-            self.model_dir = _default_model_dir()
-        else:
-            self.model_dir = Path(model_dir)
-
+        
         if self._pooling not in ["cls", "mean"]:
             raise ValueError(f"pooling 只支持 'cls' 或 'mean', 当前为: {self._pooling}")
 
@@ -137,7 +140,3 @@ class OnnxEmbedding(BaseEmbedding):
        
         return pool_funcs[self._pooling]
 
-
-def _default_model_dir() -> Path:
-    project_root = Path(__file__).resolve().parents[4]
-    return project_root / "models" / "bge-small-zh"

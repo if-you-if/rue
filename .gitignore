@@ -43,6 +43,13 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+# ONNX 模型二进制文件（不忽略整个 models/ 目录，保留 Python 代码）
+*.onnx
+src/rue/models/bge-small-zh/tokenizer.json
+
+# 向量数据库（运行时生成）
+data/vector_db/
+src/rue/data/vector_db/
 
 # ==========================================
 # 5. 测试与代码质量分析工具产物
