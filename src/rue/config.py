@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     log_level: str = "info"
     embedding_provider: str = "ollama"  # ollama / onnx
     
-    onnx_model_dir: str = "src/rue/models/bge-small-zh"    
+    onnx_model_dir: str = "src/rue/models/bge-small-zh"  
+    vector_db_path: str = "data/vector_db"   
     
     class Config:
         env_file = ".env"

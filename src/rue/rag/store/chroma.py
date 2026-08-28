@@ -1,12 +1,15 @@
 import chromadb
-from rue.rag.document import Document
 from rue.rag.store.base import BaseVectorStore, SearchResult
 from rue.rag.chunk import Chunk
+from pathlib import Path
 
 
 class ChromaVectorStore(BaseVectorStore):
 
-    def __init__(self, collection_name: str = "rue_docs", persist_dir: str = "data/vector_db"):
+    def __init__(self, collection_name: str = "rue_docs", persist_dir: str | None = None):
+        base = persist_dir or settings.vector_db_path
+        path = Path(base)
+        self.persist_dir = str(path if path.is_absolute() else PROJECT_ROOT / path)
         self.client = chromadb.PersistentClient(path=persist_dir)
         self.collection = self.client.get_or_create_collection(
             name=collection_name,

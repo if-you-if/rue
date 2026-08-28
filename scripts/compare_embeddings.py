@@ -1,4 +1,3 @@
-from ast import main
 import time
 import numpy as np
 
@@ -146,8 +145,8 @@ def main():
     t_ollama, vecs_ollama = measure_speed(ollama_emb, TEST_TEXTS, "OllamaEmbedding")
     t_onnx, vecs_onnx = measure_speed(onnx_emb, TEST_TEXTS, "OnnxEmbedding")
 
-    sepeedup = t_ollama / t_onnx if t_onnx > 0 else 0
-    print(f"\n速度对比: ONNX 是 Ollama 的{sepeedup:.1f} 倍")
+    speedup = t_ollama / t_onnx if t_onnx > 0 else 0
+    print(f"\n速度对比: ONNX 是 Ollama 的{speedup:.1f} 倍")
 
     for query in QUERIES:
         compare_ranking(ollama_emb, onnx_emb, TEST_TEXTS, query)

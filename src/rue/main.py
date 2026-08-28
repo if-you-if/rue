@@ -1,3 +1,4 @@
+from rue.config import PROJECT_ROOT
 from rue.llm.ollama import OllamaLLM
 from rue.prompt import DEFAULT_SYSTEM_PROMPT
 from rue.models.message import Message,Role
@@ -6,7 +7,7 @@ from rue.context.manager import SlidingWindowContextManager
 from rue.prompt.builder import PromptBuilder  
 from rue.pipeline.chat import ChatPipeline
 from rue.prompt.strategy import RAGStrategy
-from rue.rag.embedding.ollama import OllamaEmbedding
+from rue.rag.embedding import get_embedding
 from rue.rag.loader.text import TextLoader
 from rue.rag.pipeline import RAGPipeline
 from rue.rag.splitter.recursive import RecursiveCharacterSplitter
@@ -32,7 +33,7 @@ def main():
 
     loader = TextLoader()
     splitter = RecursiveCharacterSplitter(chunk_size=500, chunk_overlap=50)
-    embedding = OllamaEmbedding()
+    embedding = get_embedding()
     store = ChromaVectorStore()
     retriever = VectorRetriever(embedding=embedding, store=store)
     
@@ -44,7 +45,7 @@ def main():
         store = store,
         retriever=retriever
     )
-    rag_pipeline.index_directory("data/raw")
+    rag_pipeline.index_directory(str(PROJECT_ROOT / "data" / "raw"))
 
     #组装 pipeline
     pipeline = ChatPipeline(

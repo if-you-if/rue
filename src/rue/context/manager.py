@@ -3,8 +3,6 @@ from rue.memory.conversation import Conversation
 from rue.models.message import Message, Role
 from pydantic import BaseModel
 
-from rue.prompt.context import PromptContext
-
 
 
 class SlidingWindowContextManager(BaseModel):
